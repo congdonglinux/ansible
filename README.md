@@ -66,7 +66,12 @@ ansible ansibleLab -m ping
     "ping": "pong"
 }
 ```
-`ansible ansibleLab -m setup -a 'filter=ansible_distribution'`
+
+#####Thực thi playbook
+```
+ansible ansibleLab -m setup -a 'filter=ansible_distribution'`
+```
+
 ```
 192.168.1.74 | success >> {
     "ansible_facts": {
@@ -120,7 +125,7 @@ PLAY RECAP ********************************************************************
 ```
 Để ý trường `failed=0`, nếu failed=0 là okie. Lần lượt vào 2 host để kiểm tra bằng lệnh `netstat -nltp`
 
-TroubleShooting
+##TroubleShooting
 ```
 192.168.5.119 | FAILED => Using a SSH password instead of a key is not possible because Host Key checking is enabled and sshpass does not support this.  Please add this host's fingerprint to your known_hosts file to manage this host.
 192.168.5.149 | FAILED => Using a SSH password instead of a key is not possible because Host Key checking is enabled and sshpass does not support this.  Please add this host's fingerprint to your known_hosts file to manage this host.
