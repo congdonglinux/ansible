@@ -1,16 +1,17 @@
 ansible
 =======
+![ansibl](http://www.jaimegago.com/wp-content/uploads/2013/03/Screen-Shot-2013-03-30-at-6.07.36-PM.png)e
 
-What's 'Ansible' ?
+##What's 'Ansible' ?
 
 Ansible là chương trình qủan lý cấu hình tương tự như Saltstack, puppet... nhưng thay vì sử  dụng agent để trao đổi dữ liệu thì Ansible trao đổi dữ liệu qua SSH và không yêu cầu cài đặt agent lên các máy cần quản lý. 
 
-Why's Ansible ?
+##Why's Ansible ?
 Có 1 số lý do để sử dụng ansible thay cho puppet, saltstack (theo ý kiến chủ quan):
 - Không muốn cài agent lên các server cần quản lý
 - Không cần quá nhiều module
 
-How's Ansible?
+##How's Ansible?
 Cài đặt Ansible lên máy quản lý (Control Node)
 Red Hat/CentOS/Fedora
 ```
