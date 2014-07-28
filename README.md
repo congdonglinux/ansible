@@ -1,5 +1,3 @@
-![ansibl](http://www.jaimegago.com/wp-content/uploads/2013/03/Screen-Shot-2013-03-30-at-6.07.36-PM.png)
-
 ##What's 'Ansible' ?
 
 Ansible là chương trình qủan lý cấu hình tương tự như Saltstack, puppet... nhưng thay vì sử  dụng agent để trao đổi dữ liệu thì Ansible trao đổi dữ liệu qua SSH và không yêu cầu cài đặt agent lên các máy cần quản lý. 
