@@ -113,8 +113,12 @@ Với mục tiêu giới thiệu sơ bộ về Ansible, mình sẽ viết 1 play
   - name: Start httpd
     service: name=httpd state=started enabled=yes
     when: ansible_os_family == "RedHat"
+    
+```
+##### Thực thi playbook
 ```
 ansible-playbook /srv/playbook.yml -v
+```
 
 ```
 PLAY RECAP ******************************************************************** 
