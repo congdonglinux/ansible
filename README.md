@@ -1,5 +1,3 @@
-ansible
-=======
 ![ansibl](http://www.jaimegago.com/wp-content/uploads/2013/03/Screen-Shot-2013-03-30-at-6.07.36-PM.png)
 
 ##What's 'Ansible' ?
