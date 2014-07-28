@@ -47,13 +47,18 @@ Mô hình Lab mình sử dụng 2 máy với thông tin như sau:
 
 
 
-Nội dung file /etc/ansible/hosts
+Nội dung file `/etc/ansible/hosts`
+```
 [ansibleLab]
 192.168.1.73 ansible_ssh_port=2246 ansible_ssh_pass=Ubuntu121
 192.168.1.74 ansible_ssh_port=5918 ansible_ssh_pass=Centos313
+```
 
 Kiểm tra sau khi cài đặt
+```
 ansible ansibleLab -m ping
+```
+```
 192.168.1.73 | success >> {
     "changed": false, 
     "ping": "pong"
@@ -63,8 +68,9 @@ ansible ansibleLab -m ping
     "changed": false, 
     "ping": "pong"
 }
-
-ansible ansibleLab -m setup -a 'filter=ansible_distribution'
+```
+`ansible ansibleLab -m setup -a 'filter=ansible_distribution'`
+```
 192.168.1.74 | success >> {
     "ansible_facts": {
         "ansible_distribution": "CentOS"
@@ -78,7 +84,7 @@ ansible ansibleLab -m setup -a 'filter=ansible_distribution'
     }, 
     "changed": false
 }
-
+```
 192.168.5.119 | FAILED => Using a SSH password instead of a key is not possible because Host Key checking is enabled and sshpass does not support this.  Please add this host's fingerprint to your known_hosts file to manage this host.
 192.168.5.149 | FAILED => Using a SSH password instead of a key is not possible because Host Key checking is enabled and sshpass does not support this.  Please add this host's fingerprint to your known_hosts file to manage this host.
 
