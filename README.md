@@ -33,17 +33,17 @@ Cấu hình ansible
 
 Mô hình Lab mình sử dụng 2 máy với thông tin như sau:
 
-OS :| Ubuntu 14.04
+*OS :*| Ubuntu 14.04
 ---|-----
-eth0:| 192.168.1.73
-SSH Port:| 2246
-SSH Pass:| Ubuntu121
+*eth0:*| 192.168.1.73
+*SSH Port:*| 2246
+*SSH Pass:*| Ubuntu121
 
-OS: CentOS 6.5
+*OS:*| CentOS 6.5
 ---|-----
-eth0:| 192.168.5.149
-SSH Port:| 5918
-SSH Pass:| Centos313
+*eth0:*| 192.168.5.149
+*SSH Port:*| 5918
+*SSH Pass:*| Centos313
 
 
 
