@@ -67,7 +67,7 @@ ansible ansibleLab -m ping
 }
 ```
 
-#####Lấy thông tin distr
+#####Lấy thông tin distro
 ```
 ansible ansibleLab -m setup -a 'filter=ansible_distribution'`
 ```
@@ -90,7 +90,7 @@ ansible ansibleLab -m setup -a 'filter=ansible_distribution'`
 
 ###Ansible playbook
 
-Ansible sử dụng khái niệm 'play' để ám chỉ các cấu hình để quản lý tài nguyên (bao gồm quản lý gói, service, cron, file...) và nhiều 'play' kết hợp với nhau tạo thành 'playbook', khái niệm này tương đương với state khi làm việc với SaltStack.
+Ansible sử dụng khái niệm `play` để ám chỉ các cấu hình để quản lý tài nguyên (bao gồm quản lý gói, service, cron, file...) và nhiều 'play' kết hợp với nhau tạo thành `playbook`, khái niệm này tương đương với state khi làm việc với SaltStack.
 
 Với mục tiêu giới thiệu sơ bộ về Ansible, mình sẽ viết 1 playbook đơn giản để làm cài đặt apache và đảm bảo apache listen trên các host.
 
