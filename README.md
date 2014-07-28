@@ -84,14 +84,6 @@ ansible ansibleLab -m ping
     "changed": false
 }
 ```
-192.168.5.119 | FAILED => Using a SSH password instead of a key is not possible because Host Key checking is enabled and sshpass does not support this.  Please add this host's fingerprint to your known_hosts file to manage this host.
-192.168.5.149 | FAILED => Using a SSH password instead of a key is not possible because Host Key checking is enabled and sshpass does not support this.  Please add this host's fingerprint to your known_hosts file to manage this host.
-
-
-`/etc/ansible/ansible.cfg`
-```
-host_key_checking = False
-```
 
 ###Ansible playbook
 
@@ -130,4 +122,15 @@ PLAY RECAP ********************************************************************
 ```
 Để ý trường `failed=0`, nếu failed=0 là okie. Lần lượt vào 2 host để kiểm tra bằng lệnh `netstat -nltp`
 
-http://docs.ansible.com/
+TroubleShooting
+```
+192.168.5.119 | FAILED => Using a SSH password instead of a key is not possible because Host Key checking is enabled and sshpass does not support this.  Please add this host's fingerprint to your known_hosts file to manage this host.
+192.168.5.149 | FAILED => Using a SSH password instead of a key is not possible because Host Key checking is enabled and sshpass does not support this.  Please add this host's fingerprint to your known_hosts file to manage this host.
+```
+
+Sửa file `/etc/ansible/ansible.cfg`
+```
+host_key_checking = False
+```
+
+Trên đây chỉ là 1 số thông tin rất cơ bản về ansible, các bạn có thể vào link http://docs.ansible.com/ tìm hiểu thêm về ansible để phát triển theo ý muốn.
