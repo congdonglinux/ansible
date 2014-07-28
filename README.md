@@ -12,14 +12,15 @@ Có 1 số lý do để sử dụng ansible thay cho puppet, saltstack (theo ý 
 - Không cần quá nhiều module
 
 ##How's Ansible?
-Cài đặt Ansible lên máy quản lý (Control Node)
-Red Hat/CentOS/Fedora
+###Cài đặt Ansible lên máy quản lý (Control Node)
+
+#####Red Hat/CentOS/Fedora
 ```
 rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 yum install ansible -y
 ```
 
-Ubuntu/Debian
+#####Ubuntu/Debian
 ```
 apt-get install python-software-properties
 apt-add-repository ppa:ansible/ansible
@@ -27,11 +28,11 @@ apt-get update
 apt-get install ansible
 ```
 
-Cấu hình ansible
+#####Cấu hình ansible
 
 Để sử dụng được ansible thì chỉ cần cấu hình 1 file duy nhất, file này chứa danh sách các host sẽ được Ansible quản lý `/etc/ansible/hosts`
 
-Mô hình Lab mình sử dụng 2 máy với thông tin như sau:
+#####Mô hình Lab mình sử dụng 2 máy với thông tin như sau:
 
 **OS :**| Ubuntu 14.04
 ---|-----
@@ -45,8 +46,6 @@ Mô hình Lab mình sử dụng 2 máy với thông tin như sau:
 **SSH Port:**| 5918
 **SSH Pass:**| Centos313
 
-
-
 Nội dung file `/etc/ansible/hosts`
 ```
 [ansibleLab]
@@ -54,7 +53,7 @@ Nội dung file `/etc/ansible/hosts`
 192.168.1.74 ansible_ssh_port=5918 ansible_ssh_pass=Centos313
 ```
 
-Kiểm tra sau khi cài đặt
+#####Kiểm tra sau khi cài đặt
 ```
 ansible ansibleLab -m ping
 ```
@@ -89,18 +88,18 @@ ansible ansibleLab -m ping
 192.168.5.149 | FAILED => Using a SSH password instead of a key is not possible because Host Key checking is enabled and sshpass does not support this.  Please add this host's fingerprint to your known_hosts file to manage this host.
 
 
-/etc/ansible/ansible.cfg
+`/etc/ansible/ansible.cfg`
 ```
 host_key_checking = False
 ```
 
-Ansible playbook
+###Ansible playbook
 
 Ansible sử dụng khái niệm 'play' để ám chỉ các cấu hình để quản lý tài nguyên (bao gồm quản lý gói, service, cron, file...) và nhiều 'play' kết hợp với nhau tạo thành 'playbook', khái niệm này tương đương với state khi làm việc với SaltStack.
 
 Với mục tiêu giới thiệu sơ bộ về Ansible, mình sẽ viết 1 playbook đơn giản để làm cài đặt apache và đảm bảo apache listen trên các host.
 
-vim /srv/playbook.yml
+`vim /srv/playbook.yml`
 ```
 ---
 - hosts: ansibleLab
