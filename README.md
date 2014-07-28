@@ -123,7 +123,7 @@ PLAY RECAP ********************************************************************
 192.168.1.73               : ok=3    changed=1    unreachable=0    failed=0   
 192.168.1.74               : ok=3    changed=2    unreachable=0    failed=0 
 ```
-Để ý trường `failed=0`, nếu failed=0 là okie. Lần lượt vào 2 host để kiểm tra bằng lệnh `netstat -nltp`
+Để ý trường `failed=0` là okie. Lần lượt vào 2 host để kiểm tra bằng lệnh `netstat -nltp`
 
 ##TroubleShooting
 ```
