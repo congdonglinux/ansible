@@ -1,6 +1,6 @@
 ansible
 =======
-![ansibl](http://www.jaimegago.com/wp-content/uploads/2013/03/Screen-Shot-2013-03-30-at-6.07.36-PM.png)e
+![ansibl](http://www.jaimegago.com/wp-content/uploads/2013/03/Screen-Shot-2013-03-30-at-6.07.36-PM.png)
 
 ##What's 'Ansible' ?
 
@@ -82,7 +82,9 @@ ansible ansibleLab -m setup -a 'filter=ansible_distribution'
 
 
 /etc/ansible/ansible.cfg
+```
 host_key_checking = False
+```
 
 Ansible playbook
 
@@ -91,6 +93,7 @@ Ansible sử dụng khái niệm 'play' để ám chỉ các cấu hình để q
 Với mục tiêu giới thiệu sơ bộ về Ansible, mình sẽ viết 1 playbook đơn giản để làm cài đặt apache và đảm bảo apache listen trên các host.
 
 vim /srv/playbook.yml
+```
 ---
 - hosts: ansibleLab
   gather_facts: yes
@@ -110,7 +113,7 @@ vim /srv/playbook.yml
   - name: Start httpd
     service: name=httpd state=started enabled=yes
     when: ansible_os_family == "RedHat"
- 
+```
 ansible-playbook /srv/playbook.yml -v
 
 ```
@@ -118,6 +121,6 @@ PLAY RECAP ********************************************************************
 192.168.1.73               : ok=3    changed=1    unreachable=0    failed=0   
 192.168.1.74               : ok=3    changed=2    unreachable=0    failed=0 
 ```
-Để ý trường 'failed=0', nếu failed=0 là okie. Lần lượt vào 2 host để kiểm tra bằng lệnh netstat -nltp
+Để ý trường `failed=0`, nếu failed=0 là okie. Lần lượt vào 2 host để kiểm tra bằng lệnh `netstat -nltp`
 
 http://docs.ansible.com/
