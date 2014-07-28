@@ -32,11 +32,11 @@ Cấu hình ansible
 Để sử dụng được ansible thì chỉ cần cấu hình 1 file duy nhất, file này chứa danh sách các host sẽ được Ansible quản lý `/etc/ansible/hosts`
 
 Mô hình Lab mình sử dụng 2 máy với thông tin như sau:
-OS : Ubuntu 14.04
----|-----
-eth0:| 192.168.1.73
-SSH Port:| 2246
-SSH Pass:| Ubuntu121
+|OS :| Ubuntu 14.04|
+---|-----|
+|eth0:| 192.168.1.73|
+|SSH Port:| 2246|
+|SSH Pass:| Ubuntu121|
 
 OS: CentOS 6.5
 ---|-----
