@@ -40,7 +40,7 @@ apt-get install ansible
 
 **OS:**| CentOS 6.5
 ---|-----
-**eth0:**| 192.168.5.149
+**eth0:**| 192.168.1.74
 **SSH Port:**| 5918
 **SSH Pass:**| Centos313
 
