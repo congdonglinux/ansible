@@ -67,7 +67,7 @@ ansible ansibleLab -m ping
 }
 ```
 
-#####Thực thi playbook
+#####Lấy thông tin distr
 ```
 ansible ansibleLab -m setup -a 'filter=ansible_distribution'`
 ```
