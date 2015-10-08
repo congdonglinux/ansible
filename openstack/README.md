@@ -13,7 +13,7 @@ Hướng dẫn sử dụng Openstack ansible playbook để cài đặt Openstac
 	* Openstack Dashboard (horizon)
 - Sử dụng lvm làm back-end cho cinder-volume
 - Sử dụng local hardisk cho nova-compute
-- Sử dụng module keystone (Chỉnh sửa từ module của Kevin Carter <kevin.carter@rackspace.com>)
+- Sử dụng module keystone (Chỉnh sửa từ module của [Kevin Carter <kevin.carter@rackspace.com>](https://github.com/openstack/openstack-ansible/blob/master/playbooks/library/keystone))
 
 ### Thay đổi cấu hình cluster
 ---
