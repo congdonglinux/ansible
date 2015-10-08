@@ -1,6 +1,18 @@
 Hướng dẫn sử dụng Openstack ansible playbook để cài đặt Openstack
 =================================================================
 ---
+### Thông tin playbook
+- Playbook đã được test trên MacOSX (ansible 1.9.3) và CentOS 6.7 (ansible 1.9.2)
+- Play book cài đặt các dịch vụ cơ bản:
+	* Openstack Identity Service (keystone)
+	* Openstack Image Service (glance)
+	* Openstack Compute Service (nova)
+	* Openstack Block Service (cinder)
+	* Openstack Networking Service (neutron)
+	* Openstack Dashboard (horizon)
+- Sử dụng lvm làm back-end cho cinder-volume
+- Sử dụng local hardisk cho nova-compute
+
 ### Thay đổi cấu hình cluster
 ---
 - Edit file `user_config.yml` để cập nhật 1 số thông tin như
