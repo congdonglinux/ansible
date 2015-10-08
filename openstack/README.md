@@ -17,9 +17,10 @@ Hướng dẫn sử dụng Openstack ansible playbook để cài đặt Openstac
 
 ### Thay đổi cấu hình cluster
 ---
-- Edit file `user_config.yml` để cập nhật 1 số thông tin như
-	* Mật khẩu các service.
-	* Số lượng, tên các project sẽ được tạo trong Openstack
+- Edit file `user_secret.yml` để cập nhật mật khẩu các dịch vụ.
+
+- Edit file `user_config.yml` để cập nhật:
+	* Internal/External interface của các node
 	* Các tham số liên quan đến các service (listen IP, listen Port, public/internal/admin endpoints . . .)
 
 - Edit file `inventory.ini` để câp nhật thông tin các server trong cluster
