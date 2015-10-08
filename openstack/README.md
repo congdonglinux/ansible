@@ -2,6 +2,7 @@ Hướng dẫn sử dụng Openstack ansible playbook để cài đặt Openstac
 =================================================================
 ---
 ### Thông tin playbook
+---
 - Playbook đã được test trên MacOSX (ansible 1.9.3) và CentOS 6.7 (ansible 1.9.2)
 - Play book cài đặt các dịch vụ cơ bản:
 	* Openstack Identity Service (keystone)
