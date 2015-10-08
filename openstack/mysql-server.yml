@@ -1,0 +1,8 @@
+---
+
+- name: Install mysql-server
+  hosts: mysql
+  user: root
+  gather_facts: True
+  roles:
+    - { role: "mysql_server", tags: ["mysql-server"] }

@@ -1,0 +1,20 @@
+---
+
+- name: Update apt
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  register: apt_update
+  until: apt_update|success
+  retries: 5
+  delay: 2
+
+- name: Install apt packages
+  apt:
+    name: "{{ item }}"
+    state: latest
+  register: install_package
+  until: install_package|success
+  retries: 5
+  delay: 2
+  with_items: keystone_apt_packages

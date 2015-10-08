@@ -1,0 +1,122 @@
+---
+# Internal & External interface (Change it to suite your working environment)
+openstack_internal_interface_name: eth0
+openstack_external_interface_name: eth1
+
+# database server
+openstack_database_server: "{{ hostvars[groups['mysql'][0]]['ansible_ssh_host'] }}"
+
+# rabbitmq message queue config
+rabbitmq_user:
+  name: openstack
+  password: "{{ rabbitmq_user_password }}"
+  vhost: "/"
+  configure_priv: ".*"
+  read_priv: ".*"
+  write_priv: ".*"
+openstack_message_bind_ip: "{{ hostvars[groups['rabbitmq'][0]]['ansible_ssh_host']}}"
+openstack_message_userid: "{{ rabbitmq_user.name }}"
+openstack_message_password: "{{ rabbitmq_user.password }}"
+
+# global config
+openstack_services_region: "RegionOne"
+openstack_projects:
+  - name: admin
+    description: "Admin project"
+  - name: demo
+    description: "Demo project"
+  - name: service
+    description: "Services project"
+
+openstack_roles:
+  - admin
+  - user
+
+openstack_users:
+  - name: admin
+    password: "{{ openstack_admin_user_password }}"
+    project: admin
+    role: admin
+  - name: demo
+    password: "{{ openstack_demo_user_password }}"
+    project: demo
+    role: user
+
+# Identity shared param
+openstack_identity_public_ip: "{{ hostvars[groups['keystone'][0]]['ansible_' + openstack_external_interface_name]['ipv4']['address']}}"
+openstack_identity_internal_ip: "{{ hostvars[groups['keystone'][0]]['ansible_' + openstack_internal_interface_name]['ipv4']['address']}}"
+openstack_keystone_token: "{{ keystone_admin_token }}"
+openstack_keystone_proto: http
+openstack_keystone_admin_port: 35357
+openstack_keystone_service_port: 5000
+openstack_keystone_publicuri: "{{ openstack_keystone_proto }}://{{ openstack_identity_public_ip }}:{{ openstack_keystone_service_port }}"
+openstack_keystone_adminuri: "{{ openstack_keystone_proto }}://{{ openstack_identity_public_ip }}:{{ openstack_keystone_admin_port }}"
+openstack_keystone_endpoint: "{{ openstack_keystone_adminuri }}/v2.0"
+openstack_keystone_auth_plugin: password
+openstack_keystone_database_name: keystone
+openstack_keystone_database_user: keystone
+openstack_keystone_database_password: "{{ database_keystone_password }}"
+openstack_keystone_database_host:
+    - "localhost"
+    - "%"
+
+# glance config
+glance_service_identity_name: glance
+glance_service_identity_password: "{{ identity_glance_password }}"
+glance_service_identity_admin_project: service
+glance_service_public_ip: "{{ openstack_identity_public_ip }}"
+glance_service_internal_ip: "{{ openstack_identity_internal_ip }}"
+glance_service_port: 9292
+glance_default_store: file
+glance_filestore_datadir: /var/lib/glance/images/
+glance_database_name: glance
+glance_database_user: glance
+glance_database_password: "{{ database_glance_password }}"
+glance_database_host:
+    - "localhost"
+    - "%"
+
+# nova config
+nova_network_api_class: neutron
+nova_service_identity_name: nova
+nova_service_identity_password: "{{ identity_nova_password }}"
+nova_service_identity_admin_project: service
+nova_service_public_ip: "{{ openstack_identity_public_ip }}"
+nova_service_internal_ip: "{{ openstack_identity_internal_ip }}"
+nova_compute_virt_type: qemu
+nova_service_proto: http
+nova_service_api_port: 8774
+nova_service_url: "{{ nova_service_proto }}://{{ nova_service_internal_ip }}:{{ nova_service_api_port }}/v2"
+nova_service_auth_plugin: password
+nova_metadata_shared_secret: "{{ shared_metadata_secret }}"
+nova_database_name: nova
+nova_database_user: nova
+nova_database_password: "{{ database_nova_password }}"
+nova_database_host:
+    - "localhost"
+    - "%"
+
+# Block service
+cinder_service_identity_name: cinder
+cinder_service_identity_password: "{{ identity_cinder_password }}"
+cinder_service_identity_admin_project: service
+cinder_database_name: cinder
+cinder_database_user: cinder
+cinder_database_password: "{{ database_cinder_password }}"
+cinder_database_host:
+    - "localhost"
+    - "%"
+cinder_service_public_ip: "{{ openstack_identity_public_ip }}"
+cinder_service_internal_ip: "{{ openstack_identity_internal_ip }}"
+
+# neutron config
+neutron_service_identity_name: neutron
+neutron_service_identity_password: "{{ identity_neutron_password }}"
+neutron_service_identity_admin_project: service
+neutron_database_name: neutron
+neutron_database_user: neutron
+neutron_database_password: "{{ database_neutron_password }}"
+neutron_database_host:
+    - "localhost"
+    - "%"
+

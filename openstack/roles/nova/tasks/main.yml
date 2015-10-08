@@ -1,0 +1,10 @@
+---
+
+- include: install.yml
+- include: post.yml
+- include: database.yml
+  when: inventory_hostname not in groups['nova_compute']
+- include: service.yml
+  when: inventory_hostname not in groups['nova_compute']
+- include: user_project_role.yml
+  when: inventory_hostname not in groups['nova_compute']

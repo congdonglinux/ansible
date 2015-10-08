@@ -1,0 +1,8 @@
+---
+
+- name: Install keystone
+  hosts: keystone
+  user: root
+  gather_facts: True
+  roles:
+    - { role: "keystone", tags: ["keystone"] }

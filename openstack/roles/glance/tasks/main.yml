@@ -1,0 +1,6 @@
+---
+- include: install.yml
+- include: post.yml
+- include: database.yml
+- include: service.yml
+- include: user_project_role.yml

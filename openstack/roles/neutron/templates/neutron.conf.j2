@@ -1,0 +1,50 @@
+[DEFAULT]
+core_plugin = ml2
+auth_strategy = {{ neutron_auth_strategy }}
+rpc_backend = {{ neutron_rpc_backend }}
+service_plugins = router
+allow_overlapping_ips = True
+notify_nova_on_port_status_changes = True
+notify_nova_on_port_data_changes = True
+nova_url = {{ nova_service_url }}
+rpc_backend = {{ neutron_rpc_backend }}
+
+[agent]
+root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
+
+{% if neutron_auth_strategy == "keystone" %}
+[keystone_authtoken]
+auth_uri = {{ openstack_keystone_publicuri }}
+auth_url = {{ openstack_keystone_adminuri }}
+auth_plugin = {{ neutron_auth_plugin }}
+project_domain_id = default
+user_domain_id = default
+project_name = {{ neutron_service_identity_admin_project }}
+username = {{ neutron_service_identity_name }}
+password = {{ neutron_service_identity_password }}
+{% endif %}
+
+{% if inventory_hostname in groups['neutron_server'] %}
+[database]
+connection = mysql://{{ neutron_database_user }}:{{ neutron_database_password }}@{{ openstack_database_server }}/{{ neutron_database_name }}
+
+[nova]
+auth_url = {{ openstack_keystone_adminuri }}
+auth_plugin = {{ nova_service_auth_plugin }}
+project_domain_id = default
+user_domain_id = default
+region_name = {{ neutron_service_region }}
+project_name = {{ nova_service_identity_admin_project }}
+username = {{ nova_service_identity_name }}
+password = {{ nova_service_identity_password }}
+{% endif %}
+
+{% if neutron_rpc_backend == "rabbit" %}
+[oslo_messaging_rabbit]
+rabbit_host = {{ openstack_message_bind_ip }}
+rabbit_userid = {{ openstack_message_userid }}
+rabbit_password = {{ openstack_message_password }}
+{% endif %}
+
+[oslo_concurrency]
+lock_path = $state_path/lock

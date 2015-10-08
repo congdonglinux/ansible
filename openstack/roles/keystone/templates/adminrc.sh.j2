@@ -1,0 +1,10 @@
+{% for item in openstack_users %}
+{% if item.name == 'admin' %}
+export OS_TENANT_NAME={{ item.project }}
+export OS_USERNAME={{ item.name }}
+export OS_PASSWORD={{ item.password }}
+export OS_AUTH_URL={{ keystone_service_adminurl }}
+export OS_IMAGE_API_VERSION=2
+export OS_VOLUME_API_VERSION=2
+{% endif %}
+{% endfor %}

@@ -1,0 +1,41 @@
+---
+
+- name: wait for keystone admin to come up
+  wait_for:
+    host: "{{ ansible_ssh_host }}"
+    port: "{{ keystone_admin_port }}"
+    timeout: 25
+    delay: 0
+  connection: local
+
+- name: wait for keystone service to come up
+  wait_for:
+    host: "{{ ansible_ssh_host }}"
+    port: "{{ keystone_service_port }}"
+    timeout: 25
+    delay: 0
+  connection: local
+
+- name: ensure identity service
+  keystone:
+    command: 'ensure_service'
+    service_name: "{{ keystone_service_name }}"
+    description: "{{ keystone_service_description }}"
+    service_type: "{{ keystone_service_type }}"
+    state: present
+    endpoint: "{{ keystone_service_adminurl }}"
+    token: "{{ keystone_admin_token }}"
+
+- name: ensure identity endpoint exists
+  keystone:
+    command: 'ensure_endpoint'
+    service_name: "{{ keystone_service_name }}"
+    region_name: "{{ keystone_service_region }}"
+    service_type: "{{ keystone_service_type }}"
+    state: present
+    endpoint_list:
+      publicurl: "{{ keystone_service_publicurl }}"
+      adminurl: "{{ keystone_service_adminurl }}"
+      internalurl: "{{ keystone_service_internalurl }}"
+    endpoint: "{{ keystone_service_adminurl }}"
+    token: "{{ keystone_admin_token }}"

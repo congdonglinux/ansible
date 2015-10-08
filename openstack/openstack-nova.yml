@@ -1,0 +1,8 @@
+---
+
+- name: Installing Openstack Compute Service
+  hosts: nova_all
+  user: root
+  gather_facts: True
+  roles:
+    - { role: "nova", tags: ["nova"] }

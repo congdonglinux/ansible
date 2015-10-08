@@ -1,0 +1,41 @@
+---
+
+# Apache port for kestone service
+keystone_admin_port: "{{ openstack_keystone_admin_port }}"
+keystone_admin_token: "{{ openstack_keystone_token }}"
+
+keystone_apt_packages:
+  - keystone
+  - python-openstackclient
+  - apache2
+  - libapache2-mod-wsgi
+  - memcached
+  - python-memcache
+
+# Services param
+keystone_service_region: "{{ openstack_services_region }}"
+keystone_service_name: keystone
+keystone_service_port: "{{ openstack_keystone_service_port }}"
+keystone_service_proto: "{{ openstack_keystone_proto }}"
+keystone_service_type: identity
+keystone_service_description: "OpenStack Identity"
+keystone_service_user_name: keystone
+keystone_service_tenant_name: service
+keystone_system_service_name: apache2
+
+# URL
+keystone_service_publicuri: "{{ keystone_service_proto }}://{{ openstack_identity_public_ip }}:{{ keystone_service_port }}"
+keystone_service_internaluri: "{{ keystone_service_proto }}://{{ openstack_identity_internal_ip }}:{{ keystone_service_port }}"
+keystone_service_adminuri: "{{ keystone_service_proto }}://{{ openstack_identity_public_ip }}:{{ keystone_admin_port }}"
+
+keystone_service_publicurl_v2: "{{ keystone_service_publicuri }}/v2.0"
+keystone_service_internalurl_v2: "{{ keystone_service_internaluri }}/v2.0"
+keystone_service_adminurl_v2: "{{ keystone_service_adminuri }}/v2.0"
+
+keystone_service_publicurl_v3: "{{ keystone_service_publicuri }}/v3.0"
+keystone_service_internalurl_v3: "{{ keystone_service_internaluri }}/v3.0"
+keystone_service_adminurl_v3: "{{ keystone_service_adminuri }}/v3.0"
+
+keystone_service_publicurl: "{{ keystone_service_publicurl_v2 }}"
+keystone_service_internalurl: "{{ keystone_service_internalurl_v2 }}"
+keystone_service_adminurl: "{{ keystone_service_adminurl_v2 }}"

@@ -1,0 +1,16 @@
+---
+- name: ensure kernel networking param (compute nodes)
+  sysctl:
+    name: "{{ item.name }}"
+    state: present
+    value: "{{ item.value }}"
+  with_items: neutron_compute_kernel_networking_param
+  when: inventory_hostname in groups['neutron_compute']
+
+- name: ensure kernel networking param (network nodes)
+  sysctl:
+    name: "{{ item.name }}"
+    state: present
+    value: "{{ item.value }}"
+  with_items: neutron_network_kernel_networking_param
+  when: inventory_hostname in groups['neutron_network']

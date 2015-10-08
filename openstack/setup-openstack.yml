@@ -1,0 +1,9 @@
+---
+
+- include: openstack-repo.yml
+- include: openstack-keystone.yml
+- include: openstack-glance.yml
+- include: openstack-nova.yml
+- include: openstack-cinder.yml
+- include: openstack-neutron.yml
+- include: openstack-dashboard.yml

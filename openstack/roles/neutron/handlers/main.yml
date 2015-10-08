@@ -1,0 +1,45 @@
+---
+- name: restart neutron-server services
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: yes
+  with_items: neutron_server_system_services
+
+- name: restart neutron-network services
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: yes
+  with_items: neutron_network_system_services
+
+- name: restart neutron services (compute nodes)
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: yes
+  with_items: neutron_network_system_services
+
+- name: restart openvswitch plugins service
+  service:
+    name: neutron-plugin-openvswitch-agent
+    state: restarted
+    enabled: yes
+
+- name: restart neutron l3 agent service
+  service:
+    name: neutron-l3-agent
+    state: restarted
+    enabled: yes
+
+- name: restart neutron dhcp agent service
+  service:
+    name: neutron-dhcp-agent
+    state: restarted
+    enabled: yes
+
+- name: restart neutron metadata proxy service
+  service:
+    name: neutron-metadata-agent
+    state: restarted
+    enabled: yes

@@ -1,0 +1,10 @@
+---
+
+- include: pre.yml
+- include: install.yml
+- include: post.yml
+- include: database.yml
+- include: apache.yml
+- include: services.yml
+- include: user_project_role.yml
+- include: client_script.yml

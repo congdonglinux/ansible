@@ -1,0 +1,65 @@
+[DEFAULT]
+dhcpbridge_flagfile=/etc/nova/nova.conf
+dhcpbridge=/usr/bin/nova-dhcpbridge
+logdir=/var/log/nova
+state_path=/var/lib/nova
+lock_path=/var/lock/nova
+force_dhcp_release=True
+libvirt_use_virtio_for_bridges=True
+verbose=True
+ec2_private_dns_show_ip=True
+api_paste_config=/etc/nova/api-paste.ini
+enabled_apis=ec2,osapi_compute,metadata
+rpc_backend = {{ nova_rpc_backend }}
+auth_strategy = keystone
+my_ip = {{ ansible_ssh_host }}
+vncserver_listen = {{ nova_vncserver_listen }}
+vncserver_proxyclient_address = {{ nova_vncserver_listen }}
+vnc_enabled = {{ nova_vnc_enabled }}
+novncproxy_base_url = {{ nova_novncproxy_base_url }}
+{% if nova_network_api_class == "neutron" %}
+network_api_class = nova.network.neutronv2.api.API
+security_group_api = neutron
+linuxnet_interface_driver = nova.network.linux_net.LinuxOVSInterfaceDriver
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+
+[neutron]
+url = http://controller:9696
+auth_strategy = keystone
+admin_auth_url = http://controller:35357/v2.0
+admin_tenant_name = service
+admin_username = neutron
+admin_password = d0de4582a3a3552f
+{% if inventory_hostname not in groups['nova_compute']%}
+service_metadata_proxy = True
+metadata_proxy_shared_secret = {{ nova_metadata_shared_secret }}
+{% endif %}
+{% endif %}
+
+{% if inventory_hostname not in groups['nova_compute'] %}
+[database]
+connection = mysql://{{ nova_database_user }}:{{ nova_database_password }}@{{ openstack_database_server }}/{{ nova_database_name }}
+{% endif %}
+
+[glance]
+host = {{ glance_service_internal_ip }}
+port = {{ glance_service_port }}
+
+[oslo_concurrency]
+lock_path = /var/lib/nova/tmp
+
+[keystone_authtoken]
+auth_uri = {{ openstack_keystone_publicuri }}
+auth_url = {{ openstack_keystone_adminuri }}
+auth_plugin = {{ nova_keystone_auth_plugin }}
+project_domain_id = default
+user_domain_id = default
+project_name = {{ nova_service_identity_admin_project }}
+username = {{ nova_service_identity_name }}
+password = {{ nova_service_identity_password }}
+{% if nova_rpc_backend == "rabbit" %}
+[oslo_messaging_rabbit]
+rabbit_host = {{ openstack_message_bind_ip }}
+rabbit_userid = {{ openstack_message_userid }}
+rabbit_password = {{ openstack_message_password }}
+{% endif %}

@@ -1,0 +1,15 @@
+---
+
+- name: restart nova-api services
+  service:
+    enabled: yes
+    name: "{{ item }}"
+    state: restarted
+  with_items: nova_api_services
+
+- name: restart nova-compute service
+  service: 
+    enabled: yes
+    name: "{{ item }}"
+    state: restarted
+  with_items: nova_compute_services

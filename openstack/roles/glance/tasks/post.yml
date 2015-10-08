@@ -1,0 +1,20 @@
+---
+- name: ensure glance-api config file up-to-date
+  template:
+    src: "glance-api.conf.j2"
+    dest: "/etc/glance/glance-api.conf"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  notify: restart glance-api service
+
+- name: ensure glance-registry config file up-to-date
+  template:
+    src: "glance-registry.conf.j2"
+    dest: "/etc/glance/glance-registry.conf"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  notify: restart glance-registry service

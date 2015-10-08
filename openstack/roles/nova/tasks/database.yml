@@ -1,0 +1,17 @@
+---
+- name: ensure nova's database present
+  mysql_db:
+    name: "{{ nova_database_name }}"
+    state: present
+
+- name: grant access to `nova` user 
+  mysql_user:
+    name: "{{ nova_database_user }}"
+    password: "{{ nova_database_password }}"
+    host: "{{ item }}"
+    priv: "{{ nova_database_name }}.*:ALL"
+    state: present
+  with_items: nova_database_host
+
+- name: sync nova's database
+  command: su -s /bin/sh -c "nova-manage db sync" nova

@@ -1,0 +1,19 @@
+---
+- name: ensure neutron's database present
+  mysql_db:
+    name: "{{ neutron_database_name }}"
+    state: present
+
+- name: grant access to `neutron` user 
+  mysql_user:
+    name: "{{ neutron_database_user }}"
+    password: "{{ neutron_database_password }}"
+    host: "{{ item }}"
+    priv: "{{ neutron_database_name }}.*:ALL"
+    state: present
+  with_items: "{{ neutron_database_host }}"
+
+- name: sync neutron's database
+  command: >
+    su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf
+    --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron

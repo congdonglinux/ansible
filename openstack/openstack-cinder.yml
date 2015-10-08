@@ -1,0 +1,8 @@
+---
+
+- name: Installing Openstack Block Service
+  hosts: cinder_all
+  user: root
+  gather_facts: True
+  roles:
+    - { role: "cinder", tags: ["cinder"] }

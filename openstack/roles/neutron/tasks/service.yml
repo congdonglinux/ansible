@@ -1,0 +1,33 @@
+---
+
+- name: wait for keystone admin to come up
+  wait_for:
+    host: "{{ openstack_identity_public_ip }}"
+    port: "{{ openstack_keystone_admin_port }}"
+    timeout: 25
+    delay: 0
+  connection: local
+
+- name: ensure neutron service
+  keystone:
+    command: 'ensure_service'
+    service_name: "{{ neutron_service_name }}"
+    description: "{{ neutron_service_description }}"
+    service_type: "{{ neutron_service_type }}"
+    state: present
+    endpoint: "{{ openstack_keystone_endpoint }}"
+    token: "{{ openstack_keystone_token }}"
+
+- name: ensure neutron endpoint exists
+  keystone:
+    command: 'ensure_endpoint'
+    service_name: "{{ neutron_service_name }}"
+    region_name: "{{ neutron_service_region }}"
+    service_type: "{{ neutron_service_type }}"
+    state: present
+    endpoint_list:
+      publicurl: "{{ neutron_service_endpoint_publicurl }}"
+      adminurl: "{{ neutron_service_endpoint_adminurl }}"
+      internalurl: "{{ neutron_service_endpoint_internalurl }}"
+    endpoint: "{{ openstack_keystone_endpoint }}"
+    token: "{{ openstack_keystone_token }}"

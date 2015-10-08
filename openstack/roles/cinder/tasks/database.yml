@@ -1,0 +1,17 @@
+---
+- name: ensure cinder's database present
+  mysql_db:
+    name: "{{ cinder_database_name }}"
+    state: present
+
+- name: grant access to `cinder` user 
+  mysql_user:
+    name: "{{ cinder_database_user }}"
+    password: "{{ cinder_database_password }}"
+    host: "{{ item }}"
+    priv: "{{ cinder_database_name }}.*:ALL"
+    state: present
+  with_items: cinder_database_host
+
+- name: sync cinder's database
+  command: su -s /bin/sh -c "cinder-manage db sync" cinder

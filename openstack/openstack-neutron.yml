@@ -1,0 +1,8 @@
+---
+
+- name: Installing Openstack Networking Service
+  hosts: neutron_all
+  user: root
+  gather_facts: True
+  roles:
+    - { role: "neutron", tags: ["neutron"] }

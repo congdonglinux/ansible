@@ -1,0 +1,35 @@
+---
+- name: ensure user `glance` present
+  keystone:
+    command: "ensure_user"
+    user_name: "{{ glance_service_identity_name }}"
+    password: "{{ glance_service_identity_password }}"
+    state: present
+    endpoint: "{{ openstack_keystone_endpoint }}"
+    token: "{{ openstack_keystone_token }}"
+
+- name: ensure Glance's user role present
+  keystone:
+    command: "ensure_role"
+    role_name: "admin"
+    state: present
+    endpoint: "{{ openstack_keystone_endpoint }}"
+    token: "{{ openstack_keystone_token }}"
+
+- name: ensure Glance's user project present
+  keystone:
+    command: "ensure_project"
+    project_name: "{{ glance_service_identity_admin_project }}"
+    state: present
+    endpoint: "{{ openstack_keystone_endpoint }}"
+    token: "{{ openstack_keystone_token }}"
+
+- name: ensure admin role was assigned to Glance's user
+  keystone:
+    command: "ensure_user_role"
+    user_name: "{{ glance_service_identity_name }}"
+    project_name: "{{ glance_service_identity_admin_project }}"
+    role_name: admin
+    state: present
+    endpoint: "{{ openstack_keystone_endpoint }}"
+    token: "{{ openstack_keystone_token }}"

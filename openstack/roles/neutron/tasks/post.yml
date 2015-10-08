@@ -1,0 +1,101 @@
+---
+- name: ensure neutron.conf (neutron server) config file up-to-date
+  template:
+    src: "neutron.conf.j2"
+    dest: "/etc/neutron/neutron.conf"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  when: inventory_hostname in groups['neutron_server']
+  notify: restart neutron-server services
+
+- name: ensure neutron.conf (neutron network) config file up-to-date
+  template:
+    src: "neutron.conf.j2"
+    dest: "/etc/neutron/neutron.conf"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  when: inventory_hostname in groups['neutron_network']
+  notify: restart neutron-network services
+
+- name: ensure neutron.conf (neutron compute nodes) config file up-to-date
+  template:
+    src: "neutron.conf.j2"
+    dest: "/etc/neutron/neutron.conf"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  when: inventory_hostname in groups['neutron_compute']
+  notify: restart neutron services (compute nodes)
+
+- name: ensure ml2_conf.ini (compute/network nodes) config file up-to-date
+  template:
+    src: "ml2_conf.ini.j2"
+    dest: "/etc/neutron/plugins/ml2/ml2_conf.ini"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  when: inventory_hostname not in groups['neutron_server']
+  notify:
+    - restart openvswitch plugins service
+
+- name: ensure ml2_conf.ini (controller nodes) config file up-to-date
+  template:
+    src: "ml2_conf.ini.j2"
+    dest: "/etc/neutron/plugins/ml2/ml2_conf.ini"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  when: inventory_hostname in groups['neutron_server']
+  notify:
+    - restart neutron-server services
+
+
+- name: ensure l3_agent.ini (network nodes) config file up-to-date
+  template:
+    src: "l3_agent.ini.j2"
+    dest: "/etc/neutron/l3_agent.ini"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  when: inventory_hostname in groups['neutron_network']
+  notify: restart neutron l3 agent service
+
+- name: ensure dhcp_agent.ini (network nodes) config file up-to-date
+  template:
+    src: "dhcp_agent.ini.j2"
+    dest: "/etc/neutron/dhcp_agent.ini"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  when: inventory_hostname in groups['neutron_network']
+  register: dhcp_agent_file
+  notify: restart neutron dhcp agent service
+
+- name: ensure dnsmasq config file present
+  copy:
+    src: "dnsmasq-neutron.conf"
+    dest: "/etc/neutron/dnsmasq-neutron.conf"
+  when: dhcp_agent_file|success and inventory_hostname in groups['neutron_network']
+
+- name: ensure metadata_agent.ini (network node) config file up-to-date
+  template:
+    src: "metadata_agent.ini.j2"
+    dest: "/etc/neutron/metadata_agent.ini"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  when: inventory_hostname in groups['neutron_network']
+  notify: restart neutron metadata proxy service
+
+- include: ovs_switch.yml
+  when: inventory_hostname in groups['neutron_network']

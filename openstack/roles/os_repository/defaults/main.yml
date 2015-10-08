@@ -1,0 +1,6 @@
+---
+
+openstack_repo_pre_pkgs:
+  - ubuntu-cloud-keyring
+
+openstack_repo: "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/kilo main"

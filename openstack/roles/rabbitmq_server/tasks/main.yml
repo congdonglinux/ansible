@@ -1,0 +1,21 @@
+---
+- name: Install rabbitmq-server
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    cache_valid_time: 3600
+  with_items: rabbitmq_apt_packages
+  register: install_apt
+  until: install_apt|success
+  retries: 5
+  delay: 2
+
+- name: Add 'openstack' rabbitmq user
+  rabbitmq_user:
+    user: "{{ rabbitmq_user.name }}"
+    password: "{{ rabbitmq_user.password }}"
+    vhost: "{{ rabbitmq_user.vhost }}"
+    configure_priv: "{{ rabbitmq_user.configure_priv }}"
+    read_priv: "{{ rabbitmq_user.read_priv }}"
+    write_priv: "{{ rabbitmq_user.write_priv }}"
+    state: present

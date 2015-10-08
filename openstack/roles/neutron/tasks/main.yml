@@ -1,0 +1,10 @@
+---
+- include: pre.yml
+- include: install.yml
+- include: post.yml
+- include: database.yml
+  when: inventory_hostname in groups['neutron_server']
+- include: service.yml
+  when: inventory_hostname in groups['neutron_server']
+- include: user_project_role.yml
+  when: inventory_hostname in groups['neutron_server']

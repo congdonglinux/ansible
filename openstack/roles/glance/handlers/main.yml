@@ -1,0 +1,12 @@
+---
+- name: restart glance-api service
+  service:
+    name: glance-api
+    state: restated
+    enabled: yes
+
+- name: restart glance-registry service
+  service:
+    name: glance-registry
+    state: restarted
+    enabled: yes

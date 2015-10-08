@@ -1,0 +1,62 @@
+---
+
+# libvirt binary
+nova_compute_libvirtd_system_name: libvirt-bin
+
+# IP Addresses
+nova_internal_interface: "{{ openstack_internal_interface_name }}"
+nova_external_interface: "{{ openstack_external_interface_name }}"
+nova_internal_ip_address: "{{ hostvars[inventory_hostname]['ansible_' + nova_internal_interface]['ipv4']['address']}}"
+nova_external_ip_address: "{{ hostvars[inventory_hostname]['ansible_' + openstack_external_interface_name]['ipv4']['address']}}"
+
+nova_api_apt_packages:
+  - nova-api
+  - nova-cert
+  - nova-conductor
+  - nova-consoleauth
+  - nova-novncproxy
+  - nova-scheduler
+  - python-novaclient
+
+nova_compute_apt_packages:
+  - nova-compute
+  - sysfsutils
+
+# RPC
+nova_rpc_backend: rabbit
+
+# VNC
+nova_vnc_enabled: True
+nova_vncserver_listen: "{{ nova_internal_ip_address }}"
+nova_novncproxy_base_proto: http
+nova_novncproxy_base_port: 6080
+nova_novncproxy_base_url: "{{ nova_novncproxy_base_proto }}://{{ openstack_identity_public_ip }}:{{ nova_novncproxy_base_port }}/vnc_auto.html"
+
+# services
+nova_api_services:
+  - nova-api
+  - nova-cert
+  - nova-consoleauth
+  - nova-scheduler
+  - nova-conductor
+
+nova_compute_services:
+  - nova-compute
+
+nova_novncproxy_service: nova-novncproxy
+nova_keystone_auth_plugin: password
+nova_service_region: "{{ openstack_services_region }}"
+nova_service_name: nova
+nova_service_description: "OpenStack Compute service"
+nova_service_type: compute
+nova_service_port: "{{ nova_service_api_port }}"
+nova_service_bind: 0.0.0.0
+nova_service_publicurl: "{{ nova_service_proto }}://{{ nova_service_public_ip }}:{{ nova_service_port }}"
+nova_service_internalurl: "{{ nova_service_proto }}://{{ nova_service_internal_ip }}:{{ nova_service_port }}"
+nova_service_adminurl: "{{ nova_service_proto }}://{{ nova_service_public_ip }}:{{ nova_service_port }}"
+
+
+nova_service_endpoint_publicurl: "{{ nova_service_publicurl }}/v2/%(tenant_id)s"
+nova_service_endpoint_internalurl: "{{ nova_service_internalurl }}/v2/%(tenant_id)s"
+nova_service_endpoint_adminurl: "{{ nova_service_adminurl }}/v2/%(tenant_id)s"
+

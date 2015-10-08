@@ -1,0 +1,6 @@
+---
+
+# Base packages
+common_packages: 
+  - curl
+  - wget

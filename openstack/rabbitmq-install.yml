@@ -1,0 +1,8 @@
+---
+
+- name: Install rabbitmq server
+  hosts: rabbitmq
+  user: root
+  gather_facts: False
+  roles:
+    - { role: "rabbitmq_server", tags: ["rabbitmq-server"] }

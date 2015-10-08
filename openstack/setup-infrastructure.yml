@@ -1,0 +1,4 @@
+---
+- include: ntp-install.yml
+- include: rabbitmq-install.yml
+- include: mysql-server.yml

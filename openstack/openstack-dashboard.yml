@@ -1,0 +1,8 @@
+---
+
+- name: Installing Openstack Dashboard
+  hosts: dashboard
+  user: root
+  gather_facts: True
+  roles:
+    - { role: "dashboard", tags: ["dashboard"] }

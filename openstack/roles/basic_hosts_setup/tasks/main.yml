@@ -1,0 +1,4 @@
+---
+
+- include: openstack_hosts_packages.yml
+- include: openstack_update_hosts_file.yml

@@ -1,0 +1,16 @@
+---
+- name: ensure 'admin' client script present
+  template:
+    dest: "/root/adminrc.sh"
+    src: "adminrc.sh.j2"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: ensure 'demo' client script present
+  template:
+    dest: "/root/demorc.sh"
+    src: "demorc.sh.j2"
+    owner: root
+    group: root
+    mode: 0600

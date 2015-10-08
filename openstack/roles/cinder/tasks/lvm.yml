@@ -1,0 +1,6 @@
+---
+- name: ensure volume groups present
+  lvg:
+    vg: "{{ cinver_volume_group_name }}"
+    pvs: "{{ cinder_volume_physical_devices | join(',') }}"
+    state: present

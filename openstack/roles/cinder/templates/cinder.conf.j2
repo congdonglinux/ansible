@@ -1,0 +1,50 @@
+[DEFAULT]
+rootwrap_config = /etc/cinder/rootwrap.conf
+api_paste_confg = /etc/cinder/api-paste.ini
+iscsi_helper = tgtadm
+volume_name_template = volume-%s
+volume_group = {{ cinver_volume_group_name }}
+verbose = True
+auth_strategy = {{ cinder_auth_strategy }}
+state_path = /var/lib/cinder
+lock_path = /var/lock/cinder
+volumes_dir = /var/lib/cinder/volumes
+rpc_backend = {{ cinder_rpc_backend }}
+my_ip = {{ ansible_ssh_host }}
+{%if inventory_hostname in groups['cinder_volume'] %}
+enabled_backends = {{ cinder_volume_backend }}
+glance_host = {{ glance_service_internal_ip }}
+{% endif %}
+
+[database]
+connection = mysql://{{ cinder_database_user }}:{{ cinder_database_password }}@{{ openstack_database_server }}/{{ cinder_database_name }}
+
+{% if cinder_rpc_backend == 'rabbit' %}
+[oslo_messaging_rabbit]
+rabbit_host = {{ openstack_message_bind_ip}}
+rabbit_userid = {{ openstack_message_userid }}
+rabbit_password = {{ openstack_message_password }}
+{% endif %}
+
+[oslo_concurrency]
+lock_path = /var/lock/cinder
+{% if cinder_auth_strategy == "keystone" %}
+[keystone_authtoken]
+auth_uri = {{ openstack_keystone_publicuri }}
+auth_url = {{ openstack_keystone_adminuri }}
+auth_plugin = {{ openstack_keystone_auth_plugin }}
+project_domain_id = default
+user_domain_id = default
+project_name = {{ cinder_service_identity_admin_project }}
+username = {{ cinder_service_identity_name }}
+password = {{ cinder_service_identity_password }}
+{% endif %}
+{% if inventory_hostname in groups['cinder_volume'] %}
+{% if cinder_volume_backend == "lvm" %}
+[lvm]
+volume_driver = cinder.volume.drivers.lvm.LVMVolumeDriver
+volume_group = {{ cinver_volume_group_name }}
+iscsi_protocol = iscsi
+iscsi_helper = tgtadm
+{% endif %}
+{% endif %}

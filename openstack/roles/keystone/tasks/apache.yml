@@ -1,0 +1,52 @@
+---
+
+- name: Add keystone service (port(s)/site)
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "root"
+    group: "root"
+  with_items:
+    - { src: "keystone-ports.conf.j2", dest: "/etc/apache2/ports.conf"}
+    - { src: "keystone-httpd.conf.j2", dest: "/etc/apache2/sites-available/keystone-httpd.conf" }
+  notify: Restart apache2
+
+- name: Enable keystone vhost
+  file:
+    src: "/etc/apache2/sites-available/keystone-httpd.conf"
+    dest: "/etc/apache2/sites-enabled/keystone-httpd.conf"
+    state: link
+  notify: Restart apache2
+
+- name: ensure apache2 ServerName
+  lineinfile:
+    dest: "/etc/apache2/apache2.conf"
+    line: "ServerName {{ ansible_hostname }}"
+  notify: Restart apache2
+
+- name: ensure keystone vhost directory
+  file:
+    path: "/var/www/cgi-bin/keystone"
+    state: directory
+    recurse: yes
+    owner: keystone
+    group: keystone
+
+- name: Fetch WSGI script from openstack site
+  get_url:
+    url: "http://git.openstack.org/cgit/openstack/keystone/plain/httpd/keystone.py?h=stable/kilo"
+    dest: "/var/www/cgi-bin/keystone/{{ item }}"
+  with_items:
+    - main
+    - admin
+  notify: Restart apache2
+
+- name: restart apache2
+  command: service apache2 restart
+
+- name: set permission for keystone vhost dir
+  file:
+    path: "/var/www/cgi-bin/keystone"
+    recurse: yes
+    owner: keystone
+    group: keystone

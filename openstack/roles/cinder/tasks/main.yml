@@ -1,0 +1,12 @@
+---
+
+- include: install.yml
+- include: post.yml
+- include: database.yml
+  when: inventory_hostname not in groups['cinder_volume']
+- include: user_project_role.yml
+  when: inventory_hostname not in groups['cinder_volume']
+- include: service.yml
+  when: inventory_hostname not in groups['cinder_volume']
+- include: lvm.yml
+  when: cinder_volume_backend == "lvm" and inventory_hostname in groups['cinder_volume']

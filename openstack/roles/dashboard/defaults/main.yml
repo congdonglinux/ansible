@@ -1,0 +1,7 @@
+dashboard_apt_packages:
+  - openstack-dashboard
+
+dashboard_ubuntu_theme_apt_pkg:
+  - openstack-dashboard-ubuntu-theme
+
+dashboard_timezone: "Asia/Bangkok"

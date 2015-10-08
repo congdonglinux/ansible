@@ -1,0 +1,42 @@
+---
+- name: update apt database
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  register: apt_update
+  until: apt_update|success
+  retries: 5
+  delay: 2
+
+- name: install neutron-server related packages
+  apt:
+    name: "{{ item }}"
+    state: latest
+  register: install_package
+  until: install_package|success
+  retries: 5
+  delay: 2
+  with_items: neutron_server_apt_packages
+  when: inventory_hostname in groups['neutron_server']
+
+- name: install neutron networking nodes
+  apt:
+    name: "{{ item }}"
+    state: latest
+  register: install_package
+  until: install_package|success
+  retries: 5
+  delay: 2
+  with_items: neutron_network_apt_packages
+  when: inventory_hostname in groups['neutron_network']
+
+- name: install neutron compute nodes
+  apt:
+    name: "{{ item }}"
+    state: latest
+  register: install_package
+  until: install_package|success
+  retries: 5
+  delay: 2
+  with_items: neutron_compute_apt_packages
+  when: inventory_hostname in groups['neutron_compute']

@@ -1,0 +1,61 @@
+---
+
+cinder_api_apt_packages:
+  - cinder-api
+  - cinder-scheduler
+  - python-cinderclient
+
+cinder_api_system_services:
+  - cinder-scheduler
+  - cinder-api
+
+cinder_volume_apt_packages:
+  - qemu
+  - lvm2
+  - cinder-volume
+  - python-mysqldb
+
+cinver_volume_group_name: cinder-volumes
+cinder_volume_backend: lvm
+cinder_volume_physical_devices:
+  - /dev/sdb
+  - /dev/sdc
+
+cinder_volume_system_services:
+  - tgt
+  - cinder-volume
+
+
+# RPC
+cinder_rpc_backend: rabbit
+
+# Authentication
+cinder_auth_strategy: keystone
+
+cinder_keystone_auth_plugin: password
+cinder_service_v1_region: "{{ openstack_services_region }}"
+cinder_service_v1_name: cinder
+cinder_service_v1_description: "OpenStack Block service"
+cinder_service_v1_type: volume
+cinder_service_v1_port: 8776
+cinder_service_v1_bind: 0.0.0.0
+cinder_service_v1_proto: http
+cinder_service_v1_publicurl: "{{ cinder_service_v1_proto }}://{{ cinder_service_public_ip }}:{{ cinder_service_v1_port }}/v2/%(tenant_id)s"
+cinder_service_v1_internalurl: "{{ cinder_service_v1_proto }}://{{ cinder_service_internal_ip }}:{{ cinder_service_v1_port }}/v2/%(tenant_id)s"
+cinder_service_v1_adminurl: "{{ cinder_service_v1_publicurl }}"
+
+
+cinder_service_v2_region: "{{ openstack_services_region }}"
+cinder_service_v2_name: cinderv2
+cinder_service_v2_description: "OpenStack Block service"
+cinder_service_v2_type: volumev2
+cinder_service_v2_port: 8776
+cinder_service_v2_bind: 0.0.0.0
+cinder_service_v2_proto: http
+cinder_service_v2_publicurl: "{{ cinder_service_v2_proto }}://{{ cinder_service_public_ip }}:{{ cinder_service_v2_port }}/v2/%(tenant_id)s"
+cinder_service_v2_internalurl: "{{ cinder_service_v2_proto }}://{{ cinder_service_internal_ip }}:{{ cinder_service_v2_port }}/v2/%(tenant_id)s"
+cinder_service_v2_adminurl: "{{ cinder_service_v2_publicurl }}"
+
+
+
+

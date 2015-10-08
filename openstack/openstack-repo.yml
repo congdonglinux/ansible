@@ -1,0 +1,6 @@
+---
+- name: Installation Openstack Repository
+  hosts: openstack_all
+  user: root
+  roles:
+    - { role: "os_repository", tags: ["os-repository"] }

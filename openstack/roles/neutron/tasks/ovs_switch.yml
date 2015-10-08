@@ -1,0 +1,10 @@
+- name: ensure external bridge present
+  openvswitch_bridge:
+    bridge: "{{ neutron_network_external_bridge }}"
+    state: present
+
+- name: ensure physical external interface connects to external bridge
+  openvswitch_port:
+    bridge: "{{ neutron_network_external_bridge }}"
+    port: "{{ neutron_external_interface }}"
+    state: present

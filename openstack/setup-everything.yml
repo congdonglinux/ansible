@@ -1,0 +1,5 @@
+---
+
+- include: basic-hosts-setup.yml
+- include: setup-infrastructure.yml
+- include: setup_openstack.yml

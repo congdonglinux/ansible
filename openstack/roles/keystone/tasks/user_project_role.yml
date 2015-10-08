@@ -1,0 +1,42 @@
+---
+- name: ensure openstack project(s) present
+  keystone:
+    command: "ensure_project"
+    project_name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    state: present
+    endpoint: "{{ keystone_service_adminurl }}"
+    token: "{{ keystone_admin_token }}"
+  with_items: "{{ openstack_projects }}"
+
+- name: ensure openstack role(s) present
+  keystone:
+    command: "ensure_role"
+    role_name: "{{ item }}"
+    state: present
+    endpoint: "{{ keystone_service_adminurl }}"
+    token: "{{ keystone_admin_token }}"
+  with_items: "{{ openstack_roles }}"
+
+- name: ensure openstack user(s) present
+  keystone:
+    command: "ensure_user"
+    user_name: "{{ item.name }}"
+    password: "{{ item.password }}"
+    state: present
+    endpoint: "{{ keystone_service_adminurl }}"
+    token: "{{ keystone_admin_token }}"
+  no_log: True
+  with_items: "{{ openstack_users }}" 
+
+- name: ensure openstack user's role(s)
+  keystone:
+    command: "ensure_user_role"
+    user_name: "{{ item.name }}"
+    project_name: "{{ item.project }}"
+    role_name: "{{ item.role }}"
+    state: present
+    endpoint: "{{ keystone_service_adminurl }}"
+    token: "{{ keystone_admin_token }}"
+  no_log: True
+  with_items: "{{ openstack_users }}"

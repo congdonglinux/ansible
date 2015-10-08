@@ -1,0 +1,8 @@
+---
+
+- name: Disable keystone service
+  lineinfile:
+    dest: "/etc/init/keystone.override"
+    line: "manual"
+    state: present
+    create: yes

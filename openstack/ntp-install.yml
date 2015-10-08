@@ -1,0 +1,7 @@
+---
+- name: Installing ntp (all nodes)
+  hosts: all
+  user: root
+  gather_facts: False
+  roles:
+    - { role: "ntp", tags: ["ntp"]}

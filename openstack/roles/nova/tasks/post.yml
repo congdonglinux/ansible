@@ -1,0 +1,55 @@
+---
+- name: ensure `nova.conf` file (controller nodes) up-to-date
+  template:
+    src: "nova.conf.j2"
+    dest: "/etc/nova/nova.conf"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  notify:
+    - restart nova-api services
+  when: inventory_hostname not in groups['nova_compute']
+  register: nova_conf
+  tags:
+    - nova-config
+
+- name: restart novncproxy service
+  command: >
+    service {{ nova_novncproxy_service }} restart
+  when: >
+    nova_conf is defined 
+    and nova_conf|changed 
+    and nova_vnc_enabled 
+    and inventory_hostname not in groups['nova_compute']
+
+- name: ensure `nova.conf` file (compute nodes) up-to-date
+  template:
+    src: "nova.conf.j2"
+    dest: "/etc/nova/nova.conf"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  notify: restart nova-compute service
+  when: inventory_hostname in groups['nova_compute']
+  tags:
+    - nova-config
+    
+- name: ensure nova-compute.conf config file up-to-date
+  template:
+    src: "nova-compute.conf.j2"
+    dest: "/etc/nova/nova-compute.conf"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  when: inventory_hostname in groups['nova_compute']
+  notify: restart nova-compute service
+
+- name: restart libvirt service
+  service:
+    name: "{{ nova_compute_libvirtd_system_name }}"
+    state: restarted
+    enabled: yes
+  when: inventory_hostname in groups['nova_compute']

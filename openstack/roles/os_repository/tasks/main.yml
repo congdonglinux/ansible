@@ -1,0 +1,55 @@
+---
+
+- name: Update apt
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  register: apt_update
+  until: apt_update|success
+  retries: 5
+  delay: 2
+
+- name: Install prerequisite packages
+  apt:
+    pkg: "{{ item }}"
+    state: latest
+  register: pre_pkg
+  until: pre_pkg|success
+  retries: 5
+  delay: 2
+  with_items: openstack_repo_pre_pkgs
+
+- name: Install Openstack Repository
+  apt_repository:
+    repo: "{{ openstack_repo }}"
+    state: present
+    update_cache: yes
+  register: apt_update
+  until: apt_update|success
+  retries: 5
+  delay: 2
+
+- name: Upgrade system
+  apt:
+    upgrade: dist
+    state: present
+  register: apt_dist_upgrade
+  until: apt_dist_upgrade|success
+  retries: 5
+  delay: 2
+
+- name: reboot node(s)
+  command: reboot
+  async: 0
+  poll: 0
+  ignore_errors: true
+  when: >
+    "linux-image" in apt_dist_upgrade.stdout_lines
+
+- name: wait for server to come up
+  wait_for:
+    host: "{{ ansible_ssh_host }}"
+    port: "{{ ansible_ssh_port|default(22) }}"
+    search_regex: "OpenSSH"
+    state: started
+  connection: local

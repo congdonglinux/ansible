@@ -1,0 +1,13 @@
+---
+
+- name: Install mysql-server
+  apt:
+    name: "{{ item }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  with_items: mysql_apt_packages
+  register: apt_install
+  until: apt_install|success
+  retries: 5
+  delay: 2

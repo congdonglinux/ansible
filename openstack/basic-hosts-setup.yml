@@ -1,0 +1,7 @@
+---
+
+- name: Basic host setup
+  hosts: all
+  user: root
+  roles:
+    - { role: "basic_hosts_setup", tags: ["basic-hosts-setup"] }

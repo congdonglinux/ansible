@@ -1,0 +1,25 @@
+[ml2]
+type_drivers = flat,vlan,gre,vxlan
+tenant_network_types = gre
+mechanism_drivers = openvswitch
+
+[ml2_type_gre]
+tunnel_id_ranges = 1:1000
+
+[securitygroup]
+enable_security_group = True
+enable_ipset = True
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+{% if inventory_hostname not in groups['neutron_server'] %}
+
+[ml2_type_flat]
+flat_networks = external
+
+[ovs]
+local_ip = {{ hostvars[inventory_hostname]['ansible_' + openstack_internal_interface_name]['ipv4']['address']}}
+{% if inventory_hostname in groups['neutron_network'] %}
+bridge_mappings = external:br-ex
+{% endif %}
+[agent]
+tunnel_types = gre
+{% endif %}

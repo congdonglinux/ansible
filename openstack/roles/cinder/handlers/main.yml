@@ -1,0 +1,14 @@
+---
+- name: restart cinder-api services
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: restarted
+  with_items: cinder_api_system_services
+
+- name: restart cinder-volume services
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: restarted
+  with_items: cinder_volume_system_services

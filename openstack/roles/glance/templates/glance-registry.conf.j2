@@ -1,0 +1,25 @@
+[DEFAULT]
+notification_driver = noop
+bind_host = {{ glance_registry_service_bind }}
+bind_port = {{ glance_registry_service_port }}
+log_file = /var/log/glance/registry.log
+backlog = 4096
+api_limit_max = 1000
+limit_param_default = 25
+
+[database]
+connection = mysql://{{ glance_database_user }}:{{ glance_database_password }}@{{ openstack_database_server }}/{{ glance_database_name }}
+backend = sqlalchemy
+
+[keystone_authtoken]
+auth_uri = {{ openstack_keystone_publicuri }}
+auth_url = {{ openstack_keystone_adminuri }}
+auth_plugin = {{ glance_keystone_auth_plugin }}
+project_domain_id = default
+user_domain_id = default
+project_name = {{ glance_service_identity_admin_project }}
+username = {{ glance_service_identity_name }}
+password = {{ glance_service_identity_password }}
+
+[paste_deploy]
+flavor = keystone

@@ -1,0 +1,18 @@
+[DEFAULT]
+log_dir = /var/log/keystone
+admin_token = {{ openstack_keystone_token }}
+log_file = keystone.log
+log_dir = /var/log/keystone
+
+[database]
+connection = mysql://{{ openstack_keystone_database_user }}:{{ openstack_keystone_database_password }}@{{ openstack_database_server }}/{{ openstack_keystone_database_name }}
+
+[memcache]
+servers = localhost:11211
+
+[token]
+provider = keystone.token.providers.uuid.Provider
+driver = keystone.token.persistence.backends.memcache.Token
+
+[revoke]
+driver = keystone.contrib.revoke.backends.sql.Revoke

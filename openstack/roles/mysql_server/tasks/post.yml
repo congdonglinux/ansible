@@ -1,0 +1,25 @@
+---
+
+- name: Update Openstack mysql-server configuration
+  template:
+    dest: /etc/mysql/conf.d/mysqld_openstack.cnf
+    src: mysqld_openstack.cnf
+  notify: Restart mysql-server
+
+- name: Set mysql 'root' password
+  mysql_user:
+    name: root
+    host: "{{ item }}"
+    password: "{{ mysql_root_password }}"
+    check_implicit_admin: yes
+  with_items:
+    - "{{ ansible_hostname }}"
+    - 127.0.0.1
+    - ::1
+    - localhost
+
+- name: Create /root/.my.cnf
+  template:
+    src: user_my.cnf
+    dest: /root/.my.cnf
+    mode: 0600

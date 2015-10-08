@@ -1,0 +1,18 @@
+---
+
+- name: Create keystone database
+  mysql_db: 
+    name: "{{ openstack_keystone_database_name }}"
+    state: present
+
+- name: Crant access to the DB for the service
+  mysql_user:
+    name: "{{ openstack_keystone_database_user }}"
+    password: "{{ openstack_keystone_database_password }}"
+    host: "{{ item }}"
+    state: present
+    priv: "{{ openstack_keystone_database_name }}.*:ALL"
+  with_items: openstack_keystone_database_host
+
+- name: Sync keystone database
+  command: su -s /bin/sh -c "keystone-manage db_sync" keystone

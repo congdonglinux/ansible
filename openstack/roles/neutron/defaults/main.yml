@@ -1,0 +1,77 @@
+---
+
+neutron_internal_interface: "{{ openstack_internal_interface_name }}" 
+neutron_external_interface: "{{ openstack_external_interface_name }}"
+neutron_server_public_ip: "{{ hostvars[inventory_hostname]['ansible_' + neutron_internal_interface]['ipv4']['address']}}"
+neutron_server_internal_ip: "{{ hostvars[inventory_hostname]['ansible_' + neutron_external_interface]['ipv4']['address']}}"
+
+# services
+neutron_service_name: neutron
+neutron_service_description: "OpenStack Networking"
+neutron_service_type: network
+neutron_service_region: "{{ openstack_services_region }}"
+neutron_service_bind: 0.0.0.0
+neutron_service_bind_port: 9696
+neutron_service_proto: http
+
+neutron_service_endpoint_publicurl: "{{ neutron_service_proto }}://{{ neutron_server_public_ip }}:{{ neutron_service_bind_port }}"
+neutron_service_endpoint_internalurl: "{{ neutron_service_proto }}://{{ neutron_server_internal_ip }}:{{ neutron_service_bind_port }}"
+neutron_service_endpoint_adminurl: "{{ neutron_service_proto }}://{{ neutron_server_public_ip }}:{{ neutron_service_bind_port }}"
+
+
+# kernel networking parameters
+neutron_network_kernel_networking_param:
+  - name: net.ipv4.ip_forward
+    value: 1
+  - name: net.ipv4.conf.all.rp_filter
+    value: 0
+  - name: net.ipv4.conf.default.rp_filter
+    value: 0
+
+neutron_compute_kernel_networking_param:
+  - name: net.ipv4.conf.all.rp_filter
+    value: 0
+  - name: net.ipv4.conf.default.rp_filter
+    value: 0
+  - name: net.bridge.bridge-nf-call-iptables
+    value: 1
+  - name: net.bridge.bridge-nf-call-ip6tables
+    value: 1
+
+neutron_server_apt_packages:
+  - neutron-server
+  - neutron-plugin-ml2
+  - python-neutronclient
+
+neutron_server_system_services:
+  - neutron-server
+
+neutron_network_apt_packages:
+  - neutron-plugin-ml2
+  - neutron-plugin-openvswitch-agent
+  - neutron-l3-agent
+  - neutron-dhcp-agent
+  - neutron-metadata-agent
+
+neutron_network_system_services:
+  - neutron-plugin-openvswitch-agent
+  - neutron-l3-agent
+  - neutron-dhcp-agent
+  - neutron-metadata-agent
+
+neutron_compute_apt_packages:
+  - neutron-plugin-ml2
+  - neutron-plugin-openvswitch-agent
+
+# Authentication
+neutron_auth_strategy: keystone
+neutron_auth_plugin: password
+
+# RPC
+neutron_rpc_backend: rabbit
+
+# OpenVSwitch
+neutron_network_external_bridge: br-ex
+
+
+

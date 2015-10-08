@@ -1,0 +1,17 @@
+---
+- name: ensure glance's database present
+  mysql_db:
+    name: "{{ glance_database_name }}"
+    state: present
+
+- name: grant access to `glance` user 
+  mysql_user:
+    name: "{{ glance_database_user }}"
+    password: "{{ glance_database_password }}"
+    host: "{{ item }}"
+    priv: "{{ glance_database_name }}.*:ALL"
+    state: present
+  with_items: "{{ glance_database_host }}"
+
+- name: sync glance's database
+  command: su -s /bin/sh -c "glance-manage db_sync" glance

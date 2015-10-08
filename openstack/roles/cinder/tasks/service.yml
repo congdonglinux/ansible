@@ -1,0 +1,57 @@
+---
+
+- name: wait for keystone admin to come up
+  wait_for:
+    host: "{{ openstack_identity_public_ip }}"
+    port: "{{ openstack_keystone_admin_port }}"
+    timeout: 25
+    delay: 0
+  connection: local
+
+- name: ensure block v1 service
+  keystone:
+    command: 'ensure_service'
+    service_name: "{{ cinder_service_v1_name }}"
+    description: "{{ cinder_service_v1_description }}"
+    service_type: "{{ cinder_service_v1_type }}"
+    state: present
+    endpoint: "{{ openstack_keystone_endpoint }}"
+    token: "{{ openstack_keystone_token }}"
+
+- name: ensure block v2 service
+  keystone:
+    command: 'ensure_service'
+    service_name: "{{ cinder_service_v2_name }}"
+    description: "{{ cinder_service_v2_description }}"
+    service_type: "{{ cinder_service_v2_type }}"
+    state: present
+    endpoint: "{{ openstack_keystone_endpoint }}"
+    token: "{{ openstack_keystone_token }}"
+
+- name: ensure block v1 endpoint exists
+  keystone:
+    command: 'ensure_endpoint'
+    service_name: "{{ cinder_service_v1_name }}"
+    region_name: "{{ cinder_service_v1_region }}"
+    service_type: "{{ cinder_service_v1_type }}"
+    state: present
+    endpoint_list:
+      publicurl: "{{ cinder_service_v1_publicurl }}"
+      adminurl: "{{ cinder_service_v1_adminurl }}"
+      internalurl: "{{ cinder_service_v1_internalurl }}"
+    endpoint: "{{ openstack_keystone_endpoint }}"
+    token: "{{ openstack_keystone_token }}"
+
+- name: ensure block v2 endpoint exists
+  keystone:
+    command: 'ensure_endpoint'
+    service_name: "{{ cinder_service_v2_name }}"
+    region_name: "{{ cinder_service_v2_region }}"
+    service_type: "{{ cinder_service_v2_type }}"
+    state: present
+    endpoint_list:
+      publicurl: "{{ cinder_service_v2_publicurl }}"
+      adminurl: "{{ cinder_service_v2_adminurl }}"
+      internalurl: "{{ cinder_service_v2_internalurl }}"
+    endpoint: "{{ openstack_keystone_endpoint }}"
+    token: "{{ openstack_keystone_token }}"

@@ -1,0 +1,4 @@
+---
+
+ntp_apt_packages:
+  - ntp

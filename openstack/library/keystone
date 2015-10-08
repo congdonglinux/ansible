@@ -1,0 +1,677 @@
+#!/usr/bin/python
+#
+# (c) 2015, Quan Hoang <d0m0reg00dthing@gmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Based on Kevin Carter's implementation
+
+DOCUMENTATION = """
+---
+module: keystone
+version_added: "1.0"
+short_description:
+    - Manage Openstack Identity (keystone) users, projects, roles, services and endpoints
+description:
+    - Manage Openstack Identity (keystone) users, projects, roles, services and endpoints
+options:
+    login_user:
+    login_password:
+    login_project_name:
+    token:
+    endpoint:
+    password:
+    user_name:
+    project_name:
+    role_name:
+    service_name:
+    service_type:
+    region_name:
+    description:
+    email:
+    endpoint_list:
+    command:
+    state:
+requirements: [ python-keystoneclient ]
+author: Quan Hoang
+"""
+
+COMMAND_MAP = {
+    'get_project': {
+        'variables': [
+            'project_name',
+        ]
+    },
+    'get_user': {
+        'variables': [
+            'user_name'
+        ]
+    },
+    'get_role': {
+        'variables': [
+            'role_name'
+        ]
+    },
+    'ensure_user_role': {
+        'variables': [
+            'user_name',
+            'project_name',
+            'role_name',
+            'state'
+        ]
+    },
+    'ensure_service': {
+        'variables': [
+            'service_name',
+            'service_type',
+            'description',
+            'state'
+        ]
+    },
+    'ensure_endpoint': {
+        'variables': [
+            'region_name',
+            'service_name',
+            'service_type',
+            'endpoint_list',
+            'state'
+        ]
+    },
+    'ensure_role': {
+        'variables': [
+            'role_name',
+            'state'
+        ]
+    },
+    'ensure_user': {
+        'variables': [
+            'user_name',
+            'password',
+            'email',
+            'state'
+        ]
+    },
+    'ensure_project': {
+        'variables': [
+            'project_name',
+            'description',
+            'state'
+        ]
+    }
+}
+
+try:
+    from keystoneclient import exceptions as kexceptions
+    from keystoneclient.v2_0 import client
+except ImportError:
+    keystoneclient_found = False
+else:
+    keystoneclient_found = True
+
+class ManageKeystone(object):
+    def __init__(self, module):
+        """Manage keystone via Ansible"""
+        self.state_change = False
+        self.keystone = None
+
+        # Load AnsibleModule
+        self.module = module
+
+    def _facts(self, facts):
+        return {'keystone_facts': facts}
+
+    def command_router(self):
+        command_name = self.module.params['command']
+        if command_name not in COMMAND_MAP:
+            self.failure(msg="Command '%s' was not found" % command_name)
+
+        action_command = COMMAND_MAP[command_name]
+        if hasattr(self, command_name):
+            action = getattr(self, command_name)
+            facts = action(action_command['variables'])
+            if facts is None:
+                self.module.exit_json(changed=self.state_change)
+            else:
+                self.module.exit_json(
+                    changed=self.state_change,
+                    ansible_facts=facts
+                )
+        else:
+            self.failure(msg="Method '%s' was not found" % command_name)
+
+    def _get_vars(self, variables, required=None):
+        """Return a dict of all variables as found within the module.
+        :paraim variables: ``list``     List of all variables that are available to
+                                        use within the keystone command
+        :param required: ``list``       Name of variables that are required
+        """
+        return_dict = {}
+        for variable in variables:
+            return_dict[variable] = self.module.params.get(variable)
+
+        if isinstance(required, list):
+            for var in required:
+                check = return_dict.get(var)
+                if check is None:
+                    self.failure(msg="missing `%s` from task or found a `None` value" % var)
+        return return_dict
+
+    def failure(self, msg):
+        """Return a failure when running an Ansible command.
+
+        :param msg: ``msg``     Message to report.
+        """
+        self.module.fail_json(msg=msg)
+
+    def _authentication(self):
+        """Return a keystone client object."""
+        required_vars = ['endpoint']
+        variables = [
+            'endpoint',
+            'login_user',
+            'login_password',
+            'login_project_name',
+            'token'
+        ]
+
+        variables_dict = self._get_vars(variables, required=required_vars)
+        login_user = variables_dict.pop('login_user')
+        endpoint = variables_dict.pop('endpoint')
+        login_password = variables_dict.pop('login_password')
+        login_project_name = variables_dict.pop('login_project_name')
+        token = variables_dict.pop('token')
+
+        if token is None:
+            if login_project_name is None:
+                self.failure(
+                    msg="missing `login_project_name`"
+                )
+            if login_password is None:
+                self.failure(
+                    msg="missing `login_password`"
+                )
+            if login_user is None:
+                self.failure(
+                    msg="missing `login_user`"
+                )
+
+        if token:
+            self.keystone = client.Client(endpoint=endpoint, token=token)
+        else:
+            self.keystone = client.Client(auth_url=endpoint, username=login_user, password=login_password, tenant_name=login_project_name)
+
+    def _get_project(self, project_name):
+        projects = [x for x in self.keystone.tenants.list() if x.name == project_name]
+        count = len(projects)
+        if count == 0:
+            raise KeyError("No keystone project with name '%s'" % project_name)
+        elif count > 1:
+            raise ValueError("%d projects with name '%s'" % (count, project_name))
+        else:
+            return projects[0]
+
+    def _project_exists(self, project_name):
+        return project_name in [x.name for x in self.keystone.tenants.list()]
+
+    def _ensure_project_exists(self, project_name, project_description):
+        try:
+            project = self._get_project(project_name)
+        except KeyError:
+            pass
+        else:
+            self.state_change = False
+            return self._facts(facts={'id': project.id})
+
+        project = self.keystone.tenants.create(project_name, description=project_description)
+        self.state_change = True
+
+        return self._facts(facts={'id': project.id})
+
+
+    def _ensure_project_absent(self, project_name):
+        if not self._project_exists(project_name):
+            self.state_change = False
+        else:
+            project = self._get_project(project_name)
+            self.state_change = True
+            self.keystone.tenants.delete(project.id)
+
+
+    def ensure_project(self, variables):
+        variables_dict = self._get_vars(variables)
+        project_name = variables_dict.pop("project_name")
+        project_description = variables_dict.pop("description")
+        state = variables_dict.pop("state")
+        if state == 'present':
+            return self._ensure_project_exists(project_name, project_description)
+        elif state == 'absent':
+            return self._ensure_project_absent(project_name)
+
+    def get_project(self, variables):
+        variables_dict = self._get_vars(variables)
+        project_name = variables_dict.pop("project_name")
+        try:
+            project = self._get_project(project_name)
+        except KeyError:
+            self.failure(msg="No keystone project with name '%s'" % project_name)
+        except ValueError:
+            self.failure("%d projects with name '%s'" % (count, project_name))
+        else:
+            self.state_change = False
+            return self._facts(project.to_dict())
+
+
+    def _get_user(self, user_name):
+        users = [x for x in self.keystone.users.list() if x.name == user_name]
+        count = len(users)
+        if count == 0:
+            raise KeyError('No user with name %s' % user_name)
+        elif count > 1:
+            raise ValueError('%d user with name %s' % (count, user_name))
+        else:
+            return users[0]
+
+    def _create_new_user(self, user_name, password, email):
+        return self.keystone.users.create(user_name, password=password, email=email, enabled=True)
+
+    def _remove_user(self, user_id):
+        self.keystone.users.delete(user_id)
+        return None
+
+
+    def _ensure_user_present(self, user_name, password, email):
+        try:
+            user = self._get_user(user_name)
+        except KeyError:
+            self.state_change = True
+            return self._create_new_user(user_name, password, email).to_dict()
+
+        return self._facts(facts=user.to_dict())
+
+    def _ensure_user_absent(self, user_name):
+        try:
+            user = self._get_user(user_name)
+        except KeyError:
+            self.state_change = False
+            return None
+        else:
+            self.state_change = True
+            return self._remove_user(user.id)
+
+    def get_user(self, variables):
+        variables_dict = self._get_vars(variables, required=['user_name'])
+        user_name = variables_dict.pop('user_name')
+        try:
+            user = self._get_user(user_name)
+        except KeyError:
+            return self.failure(msg='user %s was not found' % user_name)
+        else:
+            return self._facts(facts=user.to_dict())
+
+    def ensure_user(self, variables):
+        required_vars = ['user_name', 'password']
+        variables_dict = self._get_vars(variables, required=required_vars)
+        password = variables_dict.pop('password')
+        user_name = variables_dict.pop('user_name')
+        email = variables_dict.pop('email')
+        state = variables_dict.pop('state')
+
+        if state == 'present':
+            return self._ensure_user_present(user_name, password, email)
+
+        return self._ensure_user_absent(user_name)
+
+    def _get_role(self, role_name):
+        roles = [x for x in self.keystone.roles.list() if x.name == role_name]
+        count = len(roles)
+
+        if count == 0:
+            raise KeyError()
+        elif count > 1:
+            raise ValueError()
+        else:
+            return roles[0]
+
+    def _create_role(self, role_name):
+        return self.keystone.roles.create(role_name).to_dict()
+
+    def _delete_role(self, role_id):
+        self.keystone.roles.delete(role_id)
+        return None
+
+    def _ensure_role_present(self, role_name):
+        try:
+            role = self._get_role(role_name)
+        except KeyError:
+            self.state_change = True
+            return self._create_role(role_name)
+        except ValueError:
+            self.failure(msg='More then 1 role with name of %s' % role_name)
+
+        return role.to_dict()
+
+    def _ensure_role_absent(self, role_name):
+        try:
+            role = self._get_role(role_name)
+        except KeyError:
+            self.state_change = False
+            return None
+        except ValueError:
+            self.failure(msg='More then 1 role with name of %s' % role_name)
+
+        self.state_change = True
+
+        return self._delete_role(role.id)
+
+
+    def ensure_role(self, variables):
+        required_vars = ['role_name']
+        variables_dict = self._get_vars(variables, required=required_vars)
+
+        role_name = variables_dict.pop('role_name')
+        state = variables_dict.pop('state')
+        if state == 'absent':
+            return self._ensure_role_absent(role_name)
+
+        return self._ensure_role_present(role_name)
+
+    def get_role(self, variables):
+        required_vars = ['role_name']
+        variables_dict = self._get_vars(variables, required=required_vars)
+        role_name = variables_dict.pop('role_name')
+        try:
+            role = self._get_role(role_name)
+        except KeyError:
+            return self.failure(msg='Role %s was not found' % role_name)
+        else:
+            return self._facts(facts=role.to_dict())
+
+    def _get_user_role(self, user_id, project_id, role_id):
+        return [x for x in self.keystone.roles.roles_for_user(user_id, project_id) if x.id == role_id]
+
+    def _add_user_role(self, user_id, project_id, role_id):
+        return self.keystone.roles.add_user_role(user_id, role_id, project_id)
+
+    def _delete_user_role(self, user_id, project_id, role_id):
+        self.keystone.roles.remove_user_role(user_id, role_id, project_id)
+        return None
+
+    def _ensure_user_role_present(self, user_id, project_id, role_id):
+        user_role = self._get_user_role(user_id, project_id, role_id)
+        count = len(user_role)
+        if count == 0:
+            self.state_change = True
+            return self._add_user_role(user_id, project_id, role_id).to_dict()
+
+        self.state_change = False
+        return user_role[0].to_dict()
+
+    def _ensure_user_role_absent(self, user_id, project_id, role_id):
+        user_role = self._get_user_role(user_id, project_id, role_id)
+        count = len(user_role)
+        if count == 1:
+            self.state_change = True
+            return self._delete_user_role(user_id, project_id, role_id)
+        elif count == 0:
+            self.state_change = False
+            return None
+
+    def ensure_user_role(self, variables):
+        required_vars = ['user_name', 'project_name', 'role_name']
+        variables_dict = self._get_vars(variables, required=required_vars)
+
+        user_name = variables_dict.pop('user_name')
+        # Check user exists
+        try:
+            user = self._get_user(user_name)
+        except KeyError:
+            return self.failure(msg='User %s was not found' % user_name)
+
+        # Check if project exists
+        project_name = variables_dict.pop('project_name')
+        try:
+            project = self._get_project(project_name)
+        except KeyError:
+            return self.failure(msg='Project %s was not found' % project_name)
+
+        # Check if role exists
+        role_name = variables_dict.pop('role_name')
+        try:
+            role = self._get_role(role_name)
+        except KeyError:
+            return self.failure(msg='Role %s was not found' % role_name)
+
+        state = variables_dict.pop('state')
+        if state == 'present':
+            return self._ensure_user_role_present(user.id, project.id, role.id)
+        else:
+            return self._ensure_user_role_absent(user.id, project.id, role.id)
+
+    def _get_service(self, service_name):
+        services = [x for x in self.keystone.services.list() if x.name == service_name]
+        count = len(services)
+        if count == 0:
+            raise KeyError()
+        elif count > 1:
+            raise ValueError()
+        else:
+            return services[0]
+
+    def _create_new_service(self, service_name, service_type, service_description):
+        return self.keystone.services.create(service_name, service_type, service_description)
+
+    def _delete_service(self, service_id):
+        self.keystone.services.delete(service_id)
+        return None
+
+    def _ensure_service_present(self, service_name, service_type, service_description):
+        try:
+            service = self._get_service(service_name)
+        except KeyError:
+            self.state_change = True
+            return self._facts(facts=self._create_new_service(service_name, service_type, service_description).to_dict())
+        except ValueError:
+            return self.failure('More than one service with name %s and type %s' % (service_name, service_type))
+        
+        self.state_change = False
+        return self._facts(facts=service.to_dict())
+
+
+    def _ensure_service_absent(self, service_name):
+        try:
+            service = self._get_service(service_name)
+        except KeyError:
+            state_change = False
+            return None
+
+        self.state_change = True
+        return self._delete_service(service.id)
+
+
+    def ensure_service(self, variables):
+        required_vars = ['service_name', 'service_type']
+        variables_dict = self._get_vars(variables, required=required_vars)
+
+        service_name = variables_dict.pop('service_name')
+        service_type = variables_dict.pop('service_type')
+        description = variables_dict.pop('description')
+        state = variables_dict.pop('state')
+        if state == 'present':
+            return self._ensure_service_present(service_name, service_type, description)
+
+        return self._ensure_service_absent(service_name)
+
+    def _create_endpoint(self, region_name, service_id, publicurl, adminurl, internalurl):
+        return self.keystone.endpoints.create(region_name, service_id, publicurl, adminurl, internalurl)
+
+    def _delete_endpoint(self, endpoint_id):
+        self.keystone.endpoints.delete(endpoint_id)
+        return None
+
+    def _get_endpoint(self, region_name, service_name):
+        try:
+            service = self._get_service(service_name)
+        except KeyError:
+            return self.failure(msg='Service "%s" was not found' % service_name)
+        
+        endpoints = [x for x in self.keystone.endpoints.list() if x.region == region_name and x.service_id == service.id]
+        count = len(endpoints)
+        if count == 0:
+            raise KeyError()
+        elif count > 1:
+            raise ValueError()
+
+        return endpoints[0]
+
+    def _ensure_endpoint_present(self, region_name, service_name, publicurl, adminurl, internalurl):
+        try:
+            endpoint = self._get_endpoint(region_name, service_name)
+        except KeyError:
+            self.state_change = True
+            service_id = self._get_service(service_name).id
+            return self._create_endpoint(region_name, service_id, publicurl, adminurl, internalurl).to_dict()
+        except ValueError:
+            return self.failure(msg='More than one endpoint was found for server "%s" in region "%s"' % (service_name, region_name))
+
+        self.state_change = False
+        return self._facts(facts=endpoint.to_dict())
+
+    def _ensure_endpoint_absent(self, region_name, service_name):
+        try:
+            endpoint = self._get_endpoint(region_name, service_name)
+        except KeyError:
+            self.state_change = False
+            return None
+        except ValueError:
+            return self.failure(msg='More than one endpoint was found for server "%s" in region "%s"' % (service_name, region_name))
+
+        self.state_change = True
+        return self._delete_endpoint(endpoint.id)
+
+    def _validate_endpoint_list(self, endpoint_list):
+        valid_endpoint = ['adminurl', 'publicurl', 'internalurl']
+        input_endpoint = endpoint_list.keys()
+        for item in valid_endpoint:
+            if item not in input_endpoint:
+                self.failure(msg='Missing %s from "endpoint_list"' % item)
+
+        for item in input_endpoint:
+            if item not in valid_endpoint:
+                self.failure(msg='Unknown endpoint item "%s" from "endpoint_list"' % item)
+
+    def ensure_endpoint(self, variables):
+        required_vars = ['service_name', 'region_name', 'service_type', 'endpoint_list']
+        variables_dict = self._get_vars(variables, required=required_vars)
+
+        region_name = variables_dict.pop('region_name')
+        service_type = variables_dict.pop('service_type')
+        service_name = variables_dict.pop('service_name')
+        state = variables_dict.pop('state')
+        endpoint_list = variables_dict.pop('endpoint_list')
+        
+        self._validate_endpoint_list(endpoint_list)
+        
+        publicurl = endpoint_list.pop('publicurl')
+        adminurl = endpoint_list.pop('adminurl')
+        internalurl = endpoint_list.pop('internalurl')
+
+        if state == 'absent':
+            self._ensure_endpoint_absent(region_name, service_name)
+        return self._ensure_endpoint_present(region_name, service_name, publicurl, adminurl, internalurl)
+        
+
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(
+            login_user=dict(
+                required=False
+            ),
+            login_password=dict(
+                required=False
+            ),
+            login_project_name=dict(
+                required=False
+            ),
+            token=dict(
+                required=False
+            ),
+            endpoint=dict(
+                required=False
+            ),
+            user_name=dict(
+                required=False
+            ),
+            password=dict(
+                required=False
+            ),
+            project_name=dict(
+                required=False
+            ),
+            role_name=dict(
+                required=False
+            ),
+            service_name=dict(
+                required=False
+            ),
+            region_name=dict(
+                required=False
+            ),
+            description=dict(
+                required=False
+            ),
+            email=dict(
+                required=False
+            ),
+            endpoint_list=dict(
+                required=False,
+                type='dict'
+            ),
+            state=dict(
+                required=False, 
+                default='present',
+                choices=['present', 'absent']
+            ),
+            command=dict(
+                required=True,
+                choices = COMMAND_MAP.keys()
+            ),
+            service_type=dict(
+                required=False,
+                choices=['compute', 'identity', 'image', 'volume', 'volumev2', 'network', 'object-store', 'orchestration', 'metering']
+            ),
+
+        ),
+        mutually_exclusive=[
+            ['token', 'login_user'],
+            ['token', 'login_password'],
+            ['token', 'login_project_name']
+        ]
+    )
+
+    km = ManageKeystone(module=module)
+    km._authentication()
+
+    if not keystoneclient_found:
+        km.failure(msg='python-keystoneclient is missing')
+
+    km.command_router()
+
+from ansible.module_utils.basic import *
+if __name__ == '__main__':
+    main()
+
+
+
+
+

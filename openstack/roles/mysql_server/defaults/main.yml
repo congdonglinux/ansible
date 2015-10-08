@@ -1,0 +1,5 @@
+---
+
+mysql_apt_packages:
+  - mariadb-server
+  - python-mysqldb
