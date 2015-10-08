@@ -2,7 +2,7 @@
 - name: restart glance-api service
   service:
     name: glance-api
-    state: restated
+    state: restarted
     enabled: yes
 
 - name: restart glance-registry service
